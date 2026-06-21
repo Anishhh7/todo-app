@@ -174,7 +174,7 @@ async function deleteTodo(id) {
   }
 }
 
-/* PURGE ALL */
+/* PURGE ALL (Fixed to include userId query param) */
 async function deleteAll() {
   if (!Array.isArray(todos) || !todos.length) return;
   if (!confirm("Delete all tasks?")) return;
@@ -184,7 +184,8 @@ async function deleteAll() {
   render();
 
   try {
-    const res = await fetch(API_BASE, { method: "DELETE" });
+    // Corrected to pass ?userId= so the backend can delete only this user's tasks
+    const res = await fetch(`${API_BASE}?userId=${visitorId}`, { method: "DELETE" });
     if (!res.ok) throw new Error(`Server error: ${res.status}`);
     showToast("All tasks deleted");
   } catch (err) {

@@ -10,9 +10,14 @@ const todoSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    userId: {
+      type: String,
+      required: true
+    },
+
     createdAt: {
       type: Date,
-      default: Date.now(),
+      default: Date.now()
     }
   },
   {
