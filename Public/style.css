@@ -1,0 +1,343 @@
+:root {
+  --bg1: #7f5af0;
+  --bg2: #2cb67d;
+  --card: #ffffff;
+  --ink: #1b1f23;
+  --ink-soft: #7a7f87;
+  --line: #eceaf5;
+  --accent: #7f5af0;
+  --accent-dark: #6440d8;
+  --danger: #e5484d;
+  --danger-soft: #fdeaea;
+  --success: #2cb67d;
+  --success-soft: #e5f8ef;
+  --radius: 16px;
+  --shadow: 0 20px 50px -15px rgba(80, 50, 180, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  background: linear-gradient(
+    135deg,
+    var(--bg1) 0%,
+    #5b7cfa 45%,
+    var(--bg2) 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 56px 18px;
+  color: var(--ink);
+}
+
+.app {
+  width: 100%;
+  max-width: 560px;
+}
+
+.title-wrap {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title-wrap h1 {
+  color: #fff;
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 6px;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.title-wrap p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+form input[type="text"] {
+  flex: 1;
+  border: 2px solid var(--line);
+  background: #fafafd;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+form input[type="text"]::placeholder {
+  color: #a7abb4;
+}
+
+form input[type="text"]:focus {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+form button {
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 8px 20px -6px rgba(127, 90, 240, 0.6);
+}
+
+form button:hover {
+  transform: translateY(-1px);
+}
+
+form button:active {
+  transform: translateY(0);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.toolbar .count {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.toolbar .count strong {
+  color: var(--ink);
+}
+
+.clear-all {
+  border: none;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  letter-spacing: 0.2px;
+}
+
+.clear-all:hover {
+  background: #fbd7d8;
+}
+
+.clear-all:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fafafd;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 14px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+li.completed {
+  background: var(--success-soft);
+  border-color: #d4f1e3;
+}
+
+.check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 2px solid #c9ccd6;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #fff;
+  position: relative;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+li.completed .check {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+li.completed .check::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.text {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+li.completed .text {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+}
+
+.edit-container {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+}
+
+.edit-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 15px;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 8px;
+  outline: none;
+  color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: #eeeafa;
+  color: var(--accent);
+}
+
+.icon-btn.delete:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.empty-state {
+  padding: 46px 10px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.empty-state .emoji {
+  font-size: 38px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.empty-state strong {
+  display: block;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.empty-state span {
+  font-size: 13px;
+}
+
+.status-bar {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0 4px;
+}
+
+.status-bar .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: #e5484d;
+  position: relative;
+  top: 0px;
+}
+
+.status-bar .dot.online {
+  background: #2cb67d;
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--ink);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
