@@ -51,11 +51,22 @@ function showToast(msg) {
 async function fetchTodos() {
   try {
     const res = await fetch(API_BASE);
+    
+    // Check if the server responded with an HTTP error (like 404 or 500)
+    if (!res.ok) {
+      throw new Error(`Server responded with status ${res.status}`);
+    }
+
     const data = await res.json();
-    todos = data?.data?.todo || data || [];
+    
+    // Unify backend response structures safely
+    const parsedData = data?.data?.todo || data || [];
+    todos = Array.isArray(parsedData) ? parsedData : [];
+    
     setStatus(true);
     render();
   } catch (err) {
+    todos = []; // Keep it a clean array so .forEach won't throw errors
     setStatus(false, err.message);
     render();
   }
@@ -69,6 +80,8 @@ async function addTodo(text) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text })
     });
+
+    if (!res.ok) throw new Error(`Failed to add task (${res.status})`);
 
     const data = await res.json();
     const newTodo = data?.data?.todo || data;
@@ -90,18 +103,19 @@ async function addTodo(text) {
 
 /* TOGGLE STATUS */
 async function toggleTodo(id, completed) {
-  const cleanId = String(id).trim();
+  if (!Array.isArray(todos)) todos = [];
   const idx = todos.findIndex((t) => String(t.id || t._id) === String(id));
   if (idx !== -1) todos[idx].completed = completed;
 
   render();
 
   try {
-    await fetch(`${API_BASE}/${id}`, {
+    const res = await fetch(`${API_BASE}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ completed })
     });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
   } catch (err) {
     setStatus(false, err.message);
   }
@@ -109,8 +123,7 @@ async function toggleTodo(id, completed) {
 
 /* SAVE TRANSACTION ACTION */
 async function editTodo(id, newText) {
-
-  const cleanId = String(id).trim();
+  if (!Array.isArray(todos)) todos = [];
   const idx = todos.findIndex((t) => String(t.id || t._id) === String(id));
   if (idx !== -1) todos[idx].text = newText;
 
@@ -118,11 +131,12 @@ async function editTodo(id, newText) {
   render();
 
   try {
-    await fetch(`${API_BASE}/${id}`, {
+    const res = await fetch(`${API_BASE}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: newText })
     });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
     showToast("Task updated");
   } catch (err) {
     setStatus(false, err.message);
@@ -131,12 +145,14 @@ async function editTodo(id, newText) {
 
 /* DELETE SINGLE */
 async function deleteTodo(id) {
-  const prev = todos;
+  if (!Array.isArray(todos)) todos = [];
+  const prev = [...todos];
   todos = todos.filter((t) => String(t.id || t._id) !== String(id));
   render();
 
   try {
-    await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
     showToast("Task deleted");
   } catch (err) {
     todos = prev;
@@ -147,15 +163,16 @@ async function deleteTodo(id) {
 
 /* PURGE ALL */
 async function deleteAll() {
-  if (!todos.length) return;
+  if (!Array.isArray(todos) || !todos.length) return;
   if (!confirm("Delete all tasks?")) return;
 
-  const prev = todos;
+  const prev = [...todos];
   todos = [];
   render();
 
   try {
-    await fetch(API_BASE, { method: "DELETE" });
+    const res = await fetch(API_BASE, { method: "DELETE" });
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
     showToast("All tasks deleted");
   } catch (err) {
     todos = prev;
@@ -168,6 +185,11 @@ async function deleteAll() {
 function render() {
   if (!els.list) return;
   els.list.innerHTML = "";
+  
+  // Bulletproof safety layer: Force todos to be an array structure
+  if (!Array.isArray(todos)) {
+    todos = [];
+  }
   
   if (els.count) els.count.textContent = todos.length;
   if (els.empty) els.empty.style.display = todos.length ? "none" : "block";
@@ -195,7 +217,7 @@ function render() {
       const editInput = document.createElement("input");
       editInput.type = "text";
       editInput.className = "edit-input";
-      editInput.value = todo.text;
+      editInput.value = todo.text || "";
 
       const saveBtn = document.createElement("button");
       saveBtn.className = "icon-btn";
