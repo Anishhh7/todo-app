@@ -1,5 +1,12 @@
 const API_BASE = "https://todo-app-2c12.onrender.com/api/v1/todo";
 
+// 1. Generate or fetch a unique tracking identifier for this specific visitor
+let visitorId = localStorage.getItem("todo_visitor_id");
+if (!visitorId) {
+  visitorId = "user_" + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+  localStorage.setItem("todo_visitor_id", visitorId);
+}
+
 /* UI ELEMENTS */
 const els = {
   form: document.getElementById("todo-form"),
@@ -47,38 +54,36 @@ function showToast(msg) {
   showToast._t = setTimeout(() => els.toast.classList.remove("show"), 2200);
 }
 
-/* FETCH ALL */
+/* FETCH ALL (Isolated per User) */
 async function fetchTodos() {
   try {
-    const res = await fetch(API_BASE);
+    // Appending the user's specific tracking token to the query param string
+    const res = await fetch(`${API_BASE}?userId=${visitorId}`);
     
-    // Check if the server responded with an HTTP error (like 404 or 500)
     if (!res.ok) {
       throw new Error(`Server responded with status ${res.status}`);
     }
 
     const data = await res.json();
-    
-    // Unify backend response structures safely
     const parsedData = data?.data?.todo || data || [];
     todos = Array.isArray(parsedData) ? parsedData : [];
     
     setStatus(true);
     render();
   } catch (err) {
-    todos = []; // Keep it a clean array so .forEach won't throw errors
+    todos = [];
     setStatus(false, err.message);
     render();
   }
 }
 
-/* ADD ONE */
+/* ADD ONE (Saves user isolation token) */
 async function addTodo(text) {
   try {
     const res = await fetch(API_BASE, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, userId: visitorId }) // Send userId in payload body
     });
 
     if (!res.ok) throw new Error(`Failed to add task (${res.status})`);
@@ -186,7 +191,6 @@ function render() {
   if (!els.list) return;
   els.list.innerHTML = "";
   
-  // Bulletproof safety layer: Force todos to be an array structure
   if (!Array.isArray(todos)) {
     todos = [];
   }
@@ -202,14 +206,12 @@ function render() {
     const li = document.createElement("li");
     li.className = todo.completed ? "completed" : "";
 
-    // Circular Toggle Status Button
     const checkBtn = document.createElement("button");
     checkBtn.className = "check";
     if (todo.completed) checkBtn.classList.add("done");
     checkBtn.onclick = () => toggleTodo(todoId, !todo.completed);
     li.appendChild(checkBtn);
 
-    // Context Evaluation: Checking if the element is currently chosen for Editing mode
     if (editingId === String(todoId)) {
       const editContainer = document.createElement("div");
       editContainer.className = "edit-container";
@@ -235,14 +237,12 @@ function render() {
       editContainer.appendChild(saveBtn);
       li.appendChild(editContainer);
     } else {
-      // Standard Text Output mode
       const textSpan = document.createElement("span");
       textSpan.className = "text";
       if (todo.completed) textSpan.classList.add("done");
       textSpan.textContent = todo.text || "";
       li.appendChild(textSpan);
 
-      // Actions cluster panel 
       const actionsDiv = document.createElement("div");
       actionsDiv.className = "actions";
 
