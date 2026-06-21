@@ -1,16 +1,17 @@
 const express = require("express");
 const morgan = require("morgan");
-const cors = require('cors');
+const cors = require("cors");
 
 const todoRouter = require("./Routes/todoRoute");
 
 const app = express();
+app.use(cors());
 app.set("query parser", "extended");
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-app.use(cors());
+
 app.use(express.json());
 
 app.use((req, res, next) => {
