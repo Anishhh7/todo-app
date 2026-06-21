@@ -1,9 +1,17 @@
-const API_BASE = "https://todo-app-2c12.onrender.com/api/v1/todo";
+// Automatically switch the backend base URL depending on where the code is running
+const API_BASE =
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname === "localhost"
+    ? "http://127.0.0.1:3000/api/v1/todo" // Local computer backend
+    : "https://todo-app-2c12.onrender.com/api/v1/todo"; // Live production Render backend
 
 // 1. Generate or fetch a unique tracking identifier for this specific visitor
 let visitorId = localStorage.getItem("todo_visitor_id");
 if (!visitorId) {
-  visitorId = "user_" + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+  visitorId =
+    "user_" +
+    Math.random().toString(36).substring(2, 11) +
+    Date.now().toString(36);
   localStorage.setItem("todo_visitor_id", visitorId);
 }
 
@@ -59,7 +67,7 @@ async function fetchTodos() {
   try {
     // Appending the user's specific tracking token to the query param string
     const res = await fetch(`${API_BASE}?userId=${visitorId}`);
-    
+
     if (!res.ok) {
       throw new Error(`Server responded with status ${res.status}`);
     }
@@ -67,7 +75,7 @@ async function fetchTodos() {
     const data = await res.json();
     const parsedData = data?.data?.todo || data || [];
     todos = Array.isArray(parsedData) ? parsedData : [];
-    
+
     setStatus(true);
     render();
   } catch (err) {
@@ -90,7 +98,7 @@ async function addTodo(text) {
 
     const data = await res.json();
     const newTodo = data?.data?.todo || data;
-    
+
     if (newTodo && (newTodo.id || newTodo._id)) {
       todos.push(newTodo);
     } else {
@@ -190,11 +198,11 @@ async function deleteAll() {
 function render() {
   if (!els.list) return;
   els.list.innerHTML = "";
-  
+
   if (!Array.isArray(todos)) {
     todos = [];
   }
-  
+
   if (els.count) els.count.textContent = todos.length;
   if (els.empty) els.empty.style.display = todos.length ? "none" : "block";
   if (els.clearAllBtn) els.clearAllBtn.disabled = todos.length === 0;
@@ -231,7 +239,9 @@ function render() {
       };
 
       saveBtn.onclick = handleSave;
-      editInput.onkeyup = (e) => { if (e.key === "Enter") handleSave(); };
+      editInput.onkeyup = (e) => {
+        if (e.key === "Enter") handleSave();
+      };
 
       editContainer.appendChild(editInput);
       editContainer.appendChild(saveBtn);
@@ -283,5 +293,9 @@ if (els.clearAllBtn) {
   els.clearAllBtn.addEventListener("click", deleteAll);
 }
 
-// Kickstart UI engine
-fetchTodos();
+// Safely ensure everything runs as soon as the DOM engine is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", fetchTodos);
+} else {
+  fetchTodos();
+}
