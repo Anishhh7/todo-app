@@ -1,61 +1,27 @@
-const Todo = require("./../modles/todoModel"); // Double-check this matches your actual path to the Model
+const Todo = require("./../modles/todoModel");
 
-// 1. GET ALL TODOS (Isolated per user)
 exports.getAllTodos = async (req, res) => {
   try {
-    // Grab the unique visitor ID from the URL query parameter (?userId=...)
-    const { userId } = req.query;
-
-    // If a userId is passed, filter the MongoDB search. Otherwise, fallback to empty array.
-    const queryObj = userId ? { userId } : {};
-    const todos = await Todo.find(queryObj);
+    const todo = await Todo.find();
 
     res.status(200).json({
       status: "success",
-      results: todos.length,
+      //   results: todo.length,
       data: {
-        todo: todos
+        todo
       }
     });
   } catch (err) {
     res.status(404).json({
-      status: "fail",
-      message: err.message
+      status: "Fail",
+      message: err
     });
   }
 };
 
-// 2. CREATE A NEW TODO
-exports.createTodos = async (req, res) => {
+exports.getTodos = async (req, res) => {
   try {
-    // req.body contains { text, userId } sent by the frontend setup
-    const newTodo = await Todo.create(req.body);
-
-    res.status(201).json({
-      status: "success",
-      data: {
-        todo: newTodo
-      }
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message
-    });
-  }
-};
-
-// 3. UPDATE A TODO (Toggle completion status or edit text)
-exports.updateTodos = async (req, res) => {
-  try {
-    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Returns the freshly updated document
-      runValidators: true // Ensures schema constraints stay active
-    });
-
-    if (!todo) {
-      return res.status(404).json({ status: "fail", message: "No task found with that ID" });
-    }
+    const todo = await Todo.findById(req.params.id);
 
     res.status(200).json({
       status: "success",
@@ -65,49 +31,85 @@ exports.updateTodos = async (req, res) => {
     });
   } catch (err) {
     res.status(404).json({
+      status: "Fail",
+      message: err
+    });
+  }
+};
+
+exports.createTodos = async (req, res) => {
+  try {
+    const newTodo = await Todo.create(req.body)
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        todo: newTodo
+      }
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(400).json({
       status: "fail",
       message: err.message
     });
   }
 };
 
-// 4. DELETE A SINGLE TODO
+exports.updateTodos = async (req, res) => {
+  try {
+    const todo = await Todo.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        todo: todo
+      }
+    });
+  } catch (err)
+  {
+    res.status(400).json({
+      status: "fail",
+      message: err.message
+    });
+  }
+};
+
 exports.deleteTodos = async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndDelete(req.params.id);
-
-    if (!todo) {
-      return res.status(404).json({ status: "fail", message: "No task found with that ID" });
-    }
+    await Todo.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
       status: "success",
       data: null
     });
   } catch (err) {
-    res.status(404).json({
+    res.status(400).jsom({
       status: "fail",
-      message: err.message
+      message: "error"
     });
   }
 };
-exports.deleteMany= async (req, res) => {
+
+exports.deleteMany = async (req, res) => {
   try {
-    // Look for the user identity parameter passed in the query string
-    const { userId } = req.query;
-
-    if (!userId) {
-      return res.status(400).json({ status: "fail", message: "Missing visitor verification identifier" });
-    }
-
-    // Explicitly delete ONLY documents matching this specific user identity
-    await Todo.deleteMany({ userId });
+    await Todo.deleteMany({});
 
     res.status(204).json({
       status: "success",
+      message: "Successfully  Completed",
       data: null
     });
   } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
+    res.status(400).json({
+      status: "Fail",
+      message: err.message
+    });
   }
 };
