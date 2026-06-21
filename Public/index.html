@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+  <div class="title-wrap">
+    <h1>Todo App</h1>
+    <p id="today"></p>
+  </div>
+
+  <div class="card">
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="Create your task..." autocomplete="off" maxlength="200" />
+      <button type="submit">Add</button>
+    </form>
+
+    <div class="toolbar">
+      <span class="count"><strong id="count-label">0</strong> tasks</span>
+      <button class="clear-all" id="clear-all-btn">Delete all</button>
+    </div>
+
+    <ul id="todo-list"></ul>
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <span class="emoji">📝</span>
+      <strong>No tasks yet</strong>
+      <span>Create your first task above to get started.</span>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <div>
+      <span class="dot" id="status-dot"></span>
+      <span id="status-text">Connecting...</span>
+    </div>
+    <div id="error-text" style="color: #ffcbd1;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="index.js"></script>
+</body>
+</html>
