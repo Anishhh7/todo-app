@@ -1,48 +1,36 @@
-const Todo = require("./../modles/todoModel");
+const Todo = require("./../modles/todoModel"); // Double-check this matches your actual path to the Model
 
+// 1. GET ALL TODOS (Isolated per user)
 exports.getAllTodos = async (req, res) => {
   try {
-    const todo = await Todo.find();
+    // Grab the unique visitor ID from the URL query parameter (?userId=...)
+    const { userId } = req.query;
+
+    // If a userId is passed, filter the MongoDB search. Otherwise, fallback to empty array.
+    const queryObj = userId ? { userId } : {};
+    const todos = await Todo.find(queryObj);
 
     res.status(200).json({
       status: "success",
-      //   results: todo.length,
+      results: todos.length,
       data: {
-        todo
+        todo: todos
       }
     });
   } catch (err) {
     res.status(404).json({
-      status: "Fail",
-      message: err
+      status: "fail",
+      message: err.message
     });
   }
 };
 
-exports.getTodos = async (req, res) => {
-  try {
-    const todo = await Todo.findById(req.params.id);
-    res.status(200).json({
-      status: "success",
-      results: todo.length,
-      data: {
-        todo
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: "Fail",
-      message: err
-    });
-  }
-};
-
+// 2. CREATE A NEW TODO
 exports.createTodos = async (req, res) => {
   try {
-    const newTodo = await Todo.create({
-      text: req.body.text,
-      completed:false
-    });
+    // req.body contains { text, userId } sent by the frontend setup
+    const newTodo = await Todo.create(req.body);
+
     res.status(201).json({
       status: "success",
       data: {
@@ -50,7 +38,6 @@ exports.createTodos = async (req, res) => {
       }
     });
   } catch (err) {
-    console.log(err.message);
     res.status(400).json({
       status: "fail",
       message: err.message
@@ -58,64 +45,69 @@ exports.createTodos = async (req, res) => {
   }
 };
 
+// 3. UPDATE A TODO (Toggle completion status or edit text)
 exports.updateTodos = async (req, res) => {
   try {
     const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
+      new: true, // Returns the freshly updated document
+      runValidators: true // Ensures schema constraints stay active
     });
+
     if (!todo) {
-      return res.status(404).json({
-        status: "fail",
-        message: "No task found with that ID"
-      })
+      return res.status(404).json({ status: "fail", message: "No task found with that ID" });
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        todo: todo
+        todo
       }
     });
-  } catch (err)
-  {
-    res.status(400).json({
+  } catch (err) {
+    res.status(404).json({
       status: "fail",
       message: err.message
     });
   }
 };
 
+// 4. DELETE A SINGLE TODO
 exports.deleteTodos = async (req, res) => {
   try {
-    await Todo.findByIdAndDelete(req.params.id);
+    const todo = await Todo.findByIdAndDelete(req.params.id);
+
+    if (!todo) {
+      return res.status(404).json({ status: "fail", message: "No task found with that ID" });
+    }
 
     res.status(204).json({
       status: "success",
-
       data: null
     });
   } catch (err) {
-    res.status(400).jsom({
+    res.status(404).json({
       status: "fail",
-      message: "error"
+      message: err.message
     });
   }
 };
-
-exports.deleteMany = async (req, res) => {
+exports.deleteMany= async (req, res) => {
   try {
-    await Todo.deleteMany({});
+    // Look for the user identity parameter passed in the query string
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ status: "fail", message: "Missing visitor verification identifier" });
+    }
+
+    // Explicitly delete ONLY documents matching this specific user identity
+    await Todo.deleteMany({ userId });
 
     res.status(204).json({
       status: "success",
-      message: "Successfully  Completed",
       data: null
     });
   } catch (err) {
-    res.status(400).json({
-      status: "Fail",
-      message: err.message
-    });
+    res.status(400).json({ status: "fail", message: err.message });
   }
 };
