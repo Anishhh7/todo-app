@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:3000/api/v1/todo";
+const API_BASE = "https://todo-app-2c12.onrender.com/api/v1/todo";
 
 /* UI ELEMENTS */
 const els = {
