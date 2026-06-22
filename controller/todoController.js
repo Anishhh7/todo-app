@@ -1,4 +1,5 @@
 const Todo = require("./../modles/todoModel");
+const Regex = require("regex");
 
 exports.getAllTodos = async (req, res) => {
   try {
@@ -39,13 +40,14 @@ exports.getTodos = async (req, res) => {
 
 exports.createTodos = async (req, res) => {
   try {
-    const newTodo = await Todo.create(req.body)
+    const newTodo = await Todo.create(req.body);
 
     res.status(201).json({
       status: "success",
       data: {
         todo: newTodo
-      }
+      },
+      message: "task added"
     });
   } catch (err) {
     console.log(err.message);
@@ -58,10 +60,7 @@ exports.createTodos = async (req, res) => {
 
 exports.updateTodos = async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
+    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
     });
@@ -72,8 +71,7 @@ exports.updateTodos = async (req, res) => {
         todo: todo
       }
     });
-  } catch (err)
-  {
+  } catch (err) {
     res.status(400).json({
       status: "fail",
       message: err.message
@@ -105,6 +103,29 @@ exports.deleteMany = async (req, res) => {
       status: "success",
       message: "Successfully  Completed",
       data: null
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "Fail",
+      message: err.message
+    });
+  }
+};
+
+exports.getAllTodos = async (req, res) => {
+  try {
+    const { search } = req.query;
+    let query = {};
+
+    if (search && search.trim() !== "") {
+      query.text = { $regex: search, $options: "i" };
+    }
+
+    const todos = await Todo.find(query);
+
+    res.status(200).json({
+      status: "success",
+      data: { todos }
     });
   } catch (err) {
     res.status(400).json({

@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
   .route("/")
+  .options(todoController.getAllTodos)
   .get(todoController.getAllTodos)
   .post(todoController.createTodos)
   .delete(todoController.deleteMany);
