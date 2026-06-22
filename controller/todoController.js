@@ -112,7 +112,7 @@ exports.deleteMany = async (req, res) => {
   }
 };
 
-exports.getAllTodos = async (req, res) => {
+exports.querySearch = async (req, res) => {
   try {
     const { search } = req.query;
     let query = {};
