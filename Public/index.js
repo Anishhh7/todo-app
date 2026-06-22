@@ -1,4 +1,9 @@
-const API_URL = "http://127.0.0.1:3000/api/v1/todo"; // Local computer backend
+// Automatically detects if you are running locally or on Vercel production
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://127.0.0.1:3000/api/v1/todo" // Your local Node.js server
+    : "https://todo-app-ashy-sigma-60.vercel.app/api/v1/todo"; // Your live production backend URL // Local computer backend
 
 // DOM Element Selectors
 const taskInput = document.getElementById("task-input");
@@ -63,16 +68,20 @@ async function loadTasks() {
     console.log("Backend Raw Response Structure:", resBody);
 
     // 1. Check if data contains a nested array (e.g., resBody.data.todos or resBody.data.tasks)
-    if (resBody.data && typeof resBody.data === 'object' && !Array.isArray(resBody.data)) {
+    if (
+      resBody.data &&
+      typeof resBody.data === "object" &&
+      !Array.isArray(resBody.data)
+    ) {
       const keys = Object.keys(resBody.data);
-      const arrayKey = keys.find(key => Array.isArray(resBody.data[key]));
-      
+      const arrayKey = keys.find((key) => Array.isArray(resBody.data[key]));
+
       if (arrayKey) {
         tasks = resBody.data[arrayKey];
       } else {
         tasks = [];
       }
-    } 
+    }
     // 2. Fallbacks for other structures
     else if (resBody.data && Array.isArray(resBody.data)) {
       tasks = resBody.data;
