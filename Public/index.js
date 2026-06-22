@@ -1,301 +1,351 @@
-// Automatically switch the backend base URL depending on where the code is running
-const API_BASE =
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname === "localhost"
-    ? "http://127.0.0.1:3000/api/v1/todo" // Local computer backend
-    : "https://todo-app-2c12.onrender.com/api/v1/todo"; // Live production Render backend
+const API_URL = "http://127.0.0.1:3000/api/v1/todo"; // Local computer backend
 
-// 1. Generate or fetch a unique tracking identifier for this specific visitor
-let visitorId = localStorage.getItem("todo_visitor_id");
-if (!visitorId) {
-  visitorId =
-    "user_" +
-    Math.random().toString(36).substring(2, 11) +
-    Date.now().toString(36);
-  localStorage.setItem("todo_visitor_id", visitorId);
+// DOM Element Selectors
+const taskInput = document.getElementById("task-input");
+const addBtn = document.getElementById("add-btn");
+const searchContainer = document.getElementById("search-container");
+const searchInput = document.getElementById("search-input");
+const taskCountElement = document.getElementById("task-count");
+const deleteAllBtn = document.getElementById("delete-all-btn");
+const taskList = document.getElementById("task-list");
+
+// Internal State Sync Variable
+let tasks = [];
+
+// Initialize data synchronization on load
+document.addEventListener("DOMContentLoaded", loadTasks);
+
+// Event Listeners
+addBtn.addEventListener("click", addTask);
+taskInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") addTask();
+});
+
+// Debounced input to prevent rapid server force-restarts while typing
+searchInput.addEventListener("input", debounce(filterTasks, 400));
+deleteAllBtn.addEventListener("click", deleteAllTasks);
+
+// Debounce Engine Utility
+function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
 }
 
-/* UI ELEMENTS */
-const els = {
-  form: document.getElementById("todo-form"),
-  input: document.getElementById("todo-input"),
-  list: document.getElementById("todo-list"),
-  empty: document.getElementById("empty-state"),
-  count: document.getElementById("count-label"),
-  statusDot: document.getElementById("status-dot"),
-  statusText: document.getElementById("status-text"),
-  errorText: document.getElementById("error-text"),
-  toast: document.getElementById("toast"),
-  today: document.getElementById("today"),
-  clearAllBtn: document.getElementById("clear-all-btn")
-};
+// UI Notification Toast Engine
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
 
-if (els.today) {
-  els.today.textContent = new Date().toLocaleDateString(undefined, {
-    weekday: "long",
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("fade-out");
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
 }
 
-let todos = [];
-let editingId = null;
-
-/* STATUS UPDATE UI */
-function setStatus(online, errMsg) {
-  if (els.statusDot) els.statusDot.classList.toggle("online", online);
-  if (els.statusText) {
-    els.statusText.textContent = online
-      ? "Backend connected"
-      : "Backend unreachable";
-  }
-  if (els.errorText) els.errorText.textContent = errMsg || "";
-}
-
-/* TOAST NOTIFICATIONS */
-function showToast(msg) {
-  if (!els.toast) return;
-  els.toast.textContent = msg;
-  els.toast.classList.add("show");
-  clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => els.toast.classList.remove("show"), 2200);
-}
-
-/* FETCH ALL (Isolated per User) */
-async function fetchTodos() {
+// 1. GET - Fetch and sync all elements from server
+async function loadTasks() {
   try {
-    // Appending the user's specific tracking token to the query param string
-    const res = await fetch(`${API_BASE}?userId=${visitorId}`);
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Network response breakdown");
 
-    if (!res.ok) {
-      throw new Error(`Server responded with status ${res.status}`);
+    const resBody = await response.json();
+    console.log("Backend Raw Response Structure:", resBody);
+
+    // 1. Check if data contains a nested array (e.g., resBody.data.todos or resBody.data.tasks)
+    if (resBody.data && typeof resBody.data === 'object' && !Array.isArray(resBody.data)) {
+      const keys = Object.keys(resBody.data);
+      const arrayKey = keys.find(key => Array.isArray(resBody.data[key]));
+      
+      if (arrayKey) {
+        tasks = resBody.data[arrayKey];
+      } else {
+        tasks = [];
+      }
+    } 
+    // 2. Fallbacks for other structures
+    else if (resBody.data && Array.isArray(resBody.data)) {
+      tasks = resBody.data;
+    } else if (resBody.todos && Array.isArray(resBody.todos)) {
+      tasks = resBody.todos;
+    } else {
+      tasks = Array.isArray(resBody) ? resBody : [];
     }
 
-    const data = await res.json();
-    const parsedData = data?.data?.todo || data || [];
-    todos = Array.isArray(parsedData) ? parsedData : [];
-
-    setStatus(true);
-    render();
-  } catch (err) {
-    todos = [];
-    setStatus(false, err.message);
-    render();
+    renderTasks();
+  } catch (error) {
+    console.error("Error loading elements:", error);
+    showToast("Could not fetch tasks from server.", "error");
   }
 }
+// 2. POST - Add task object
+async function addTask() {
+  const text = taskInput.value.trim();
+  if (!text) return;
 
-/* ADD ONE (Saves user isolation token) */
-async function addTodo(text) {
   try {
-    const res = await fetch(API_BASE, {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, userId: visitorId }) // Send userId in payload body
+      body: JSON.stringify({ text })
     });
 
-    if (!res.ok) throw new Error(`Failed to add task (${res.status})`);
+    if (!response.ok) throw new Error("Creation failure");
+    const resBody = await response.json();
 
-    const data = await res.json();
-    const newTodo = data?.data?.todo || data;
-
-    if (newTodo && (newTodo.id || newTodo._id)) {
-      todos.push(newTodo);
+    if (resBody.data && resBody.data.todo) {
+      tasks.push(resBody.data.todo);
+    } else if (resBody.todo) {
+      tasks.push(resBody.todo);
     } else {
-      todos.push({ id: Date.now(), text: text, completed: false });
+      tasks.push(resBody);
     }
 
-    setStatus(true);
-    render();
-    showToast("Task added");
-  } catch (err) {
-    setStatus(false, err.message);
-    showToast("Could not reach backend");
+    taskInput.value = "";
+    renderTasks();
+    showToast("Task has been successfully added!");
+  } catch (error) {
+    console.error("Error writing element:", error);
+    showToast("Failed to add task.", "error");
   }
 }
 
-/* TOGGLE STATUS */
-async function toggleTodo(id, completed) {
-  if (!Array.isArray(todos)) todos = [];
-  const idx = todos.findIndex((t) => String(t.id || t._id) === String(id));
-  if (idx !== -1) todos[idx].completed = completed;
-
-  render();
+// 3. PUT/PATCH - Toggle status parameter mapping
+async function toggleTaskComplete(id) {
+  const targetTask = tasks.find((t) => t._id === id || t.id === id);
+  if (!targetTask) return;
 
   try {
-    const res = await fetch(`${API_BASE}/${id}`, {
+    const response = await fetch(`${API_URL}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed })
+      body: JSON.stringify({ completed: !targetTask.completed })
     });
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-  } catch (err) {
-    setStatus(false, err.message);
+
+    if (response.status === 405 || response.status === 404) {
+      const retryResponse = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: !targetTask.completed })
+      });
+      if (!retryResponse.ok) throw new Error("Status modify failed on retry");
+      var resBody = await retryResponse.json();
+    } else {
+      if (!response.ok) throw new Error("Status modify failed");
+      var resBody = await response.json();
+    }
+
+    const updatedTask =
+      resBody.data && resBody.data.todo ? resBody.data.todo : resBody;
+
+    tasks = tasks.map((t) => (t._id === id || t.id === id ? updatedTask : t));
+    renderTasks();
+  } catch (error) {
+    console.error("Status update tracking error:", error);
+    showToast("Failed to update status tracking.", "error");
   }
 }
 
-/* SAVE TRANSACTION ACTION */
-async function editTodo(id, newText) {
-  if (!Array.isArray(todos)) todos = [];
-  const idx = todos.findIndex((t) => String(t.id || t._id) === String(id));
-  if (idx !== -1) todos[idx].text = newText;
+// 4. PUT/PATCH - Modify text payload inline with state tracking
+async function editTask(id) {
+  const targetTask = tasks.find((t) => t._id === id || t.id === id);
+  if (!targetTask) return;
 
-  editingId = null;
-  render();
+  if (!targetTask.isEditing) {
+    targetTask.isEditing = true;
+    renderTasks();
+
+    const li = document.querySelector(`li[data-id="${id}"]`);
+    const input = li.querySelector(".inline-edit-input");
+    if (input) {
+      input.focus();
+      const val = input.value;
+      input.value = "";
+      input.value = val;
+    }
+    return;
+  }
+
+  const li = document.querySelector(`li[data-id="${id}"]`);
+  const inlineInput = li.querySelector(".inline-edit-input");
+  const newText = inlineInput.value.trim();
+
+  if (!newText || newText === targetTask.text) {
+    targetTask.isEditing = false;
+    renderTasks();
+    return;
+  }
 
   try {
-    const res = await fetch(`${API_BASE}/${id}`, {
+    let response = await fetch(`${API_URL}/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: newText })
     });
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    showToast("Task updated");
-  } catch (err) {
-    setStatus(false, err.message);
-  }
-}
 
-/* DELETE SINGLE */
-async function deleteTodo(id) {
-  if (!Array.isArray(todos)) todos = [];
-  const prev = [...todos];
-  todos = todos.filter((t) => String(t.id || t._id) !== String(id));
-  render();
-
-  try {
-    const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    showToast("Task deleted");
-  } catch (err) {
-    todos = prev;
-    render();
-    setStatus(false, err.message);
-  }
-}
-
-/* PURGE ALL */
-async function deleteAll() {
-  if (!Array.isArray(todos) || !todos.length) return;
-  if (!confirm("Delete all tasks?")) return;
-
-  const prev = [...todos];
-  todos = [];
-  render();
-
-  try {
-    const res = await fetch(API_BASE, { method: "DELETE" });
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    showToast("All tasks deleted");
-  } catch (err) {
-    todos = prev;
-    render();
-    setStatus(false, err.message);
-  }
-}
-
-/* COMPONENT RENDERING ENGINE */
-function render() {
-  if (!els.list) return;
-  els.list.innerHTML = "";
-
-  if (!Array.isArray(todos)) {
-    todos = [];
-  }
-
-  if (els.count) els.count.textContent = todos.length;
-  if (els.empty) els.empty.style.display = todos.length ? "none" : "block";
-  if (els.clearAllBtn) els.clearAllBtn.disabled = todos.length === 0;
-
-  todos.forEach((todo) => {
-    if (!todo) return;
-    const todoId = todo.id || todo._id;
-
-    const li = document.createElement("li");
-    li.className = todo.completed ? "completed" : "";
-
-    const checkBtn = document.createElement("button");
-    checkBtn.className = "check";
-    if (todo.completed) checkBtn.classList.add("done");
-    checkBtn.onclick = () => toggleTodo(todoId, !todo.completed);
-    li.appendChild(checkBtn);
-
-    if (editingId === String(todoId)) {
-      const editContainer = document.createElement("div");
-      editContainer.className = "edit-container";
-
-      const editInput = document.createElement("input");
-      editInput.type = "text";
-      editInput.className = "edit-input";
-      editInput.value = todo.text || "";
-
-      const saveBtn = document.createElement("button");
-      saveBtn.className = "icon-btn";
-      saveBtn.textContent = "Save";
-
-      const handleSave = () => {
-        const val = editInput.value.trim();
-        if (val) editTodo(todoId, val);
-      };
-
-      saveBtn.onclick = handleSave;
-      editInput.onkeyup = (e) => {
-        if (e.key === "Enter") handleSave();
-      };
-
-      editContainer.appendChild(editInput);
-      editContainer.appendChild(saveBtn);
-      li.appendChild(editContainer);
-    } else {
-      const textSpan = document.createElement("span");
-      textSpan.className = "text";
-      if (todo.completed) textSpan.classList.add("done");
-      textSpan.textContent = todo.text || "";
-      li.appendChild(textSpan);
-
-      const actionsDiv = document.createElement("div");
-      actionsDiv.className = "actions";
-
-      const editBtn = document.createElement("button");
-      editBtn.className = "icon-btn";
-      editBtn.textContent = "Edit";
-      editBtn.onclick = () => {
-        editingId = String(todoId);
-        render();
-      };
-
-      const delBtn = document.createElement("button");
-      delBtn.className = "icon-btn delete";
-      delBtn.textContent = "Delete";
-      delBtn.onclick = () => deleteTodo(todoId);
-
-      actionsDiv.appendChild(editBtn);
-      actionsDiv.appendChild(delBtn);
-      li.appendChild(actionsDiv);
+    if (response.status === 405 || response.status === 404) {
+      response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: newText })
+      });
     }
 
-    els.list.appendChild(li);
+    if (!response.ok) throw new Error("Text processing modification error");
+    const resBody = await response.json();
+
+    const updatedTask =
+      resBody.data && resBody.data.todo ? resBody.data.todo : resBody;
+    updatedTask.isEditing = false;
+
+    tasks = tasks.map((t) => (t._id === id || t.id === id ? updatedTask : t));
+    renderTasks();
+    showToast("Task has been successfully edited!");
+  } catch (error) {
+    console.error("Task editing pipeline interruption:", error);
+    showToast("Failed to edit task.", "error");
+    targetTask.isEditing = false;
+    renderTasks();
+  }
+}
+
+// 5. DELETE - Remove singular target
+async function deleteTask(id) {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error("Deletion request rejected");
+
+    tasks = tasks.filter((t) => t._id !== id && t.id !== id);
+    renderTasks();
+    showToast("Task has been successfully deleted!");
+  } catch (error) {
+    console.error("System clearing operation error:", error);
+    showToast("Failed to delete targeted task entity.", "error");
+  }
+}
+
+// 6. DELETE - Purge entire stack array collection
+async function deleteAllTasks() {
+  if (!confirm("Are you sure you want to clear all tasks?")) return;
+  try {
+    const response = await fetch(API_URL, { method: "DELETE" });
+    if (!response.ok) throw new Error("Global purge rejected");
+
+    tasks = [];
+    searchInput.value = "";
+    renderTasks();
+    showToast("All tasks have been successfully cleared.");
+  } catch (error) {
+    console.error("Purging structural failure:", error);
+    showToast("Failed to clear full target array stack.", "error");
+  }
+}
+
+// Core Layout Generator
+function renderTasks() {
+  taskList.innerHTML = "";
+
+  if (tasks.length > 1 || searchInput.value.trim() !== "") {
+    searchContainer.classList.remove("hidden");
+  } else {
+    searchContainer.classList.add("hidden");
+    searchInput.value = "";
+  }
+
+  if (tasks.length > 0) {
+    deleteAllBtn.classList.remove("hidden");
+  } else {
+    deleteAllBtn.classList.add("hidden");
+  }
+
+  taskCountElement.textContent = `${tasks.length} task${tasks.length !== 1 ? "s" : ""}`;
+
+  tasks.forEach((task) => {
+    const taskId = task._id || task.id;
+    const li = document.createElement("li");
+    li.className = `task-item ${task.completed ? "completed" : ""}`;
+    li.setAttribute("data-id", taskId);
+
+    const textContentHTML = task.isEditing
+      ? `<input type="text" class="inline-edit-input" value="${task.text || ""}">`
+      : `<span class="task-text">${task.text || ""}</span>`;
+
+    const actionButtonText = task.isEditing ? "Save" : "Edit";
+
+    li.innerHTML = `
+            <div class="task-left">
+                <input type="checkbox" class="task-checkbox" ${task.completed ? "checked" : ""}>
+                ${textContentHTML}
+            </div>
+            <div class="task-actions">
+                <button class="action-btn edit-btn">${actionButtonText}</button>
+                <button class="action-btn delete-btn">Delete</button>
+            </div>
+        `;
+
+    li.querySelector(".task-checkbox").addEventListener("change", () =>
+      toggleTaskComplete(taskId)
+    );
+    li.querySelector(".delete-btn").addEventListener("click", () =>
+      deleteTask(taskId)
+    );
+    li.querySelector(".edit-btn").addEventListener("click", () =>
+      editTask(taskId)
+    );
+
+    if (task.isEditing) {
+      li.querySelector(".inline-edit-input").addEventListener(
+        "keypress",
+        (e) => {
+          if (e.key === "Enter") editTask(taskId);
+        }
+      );
+    }
+
+    taskList.appendChild(li);
   });
 }
 
-/* INITIAL ACTION ASSIGNMENTS */
-if (els.form) {
-  els.form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = els.input.value.trim();
-    if (!text) return;
-    els.input.value = "";
-    addTodo(text);
-  });
-}
+// Filtering Subroutine - Fetching filtered data directly from the Backend
+async function filterTasks() {
+  const query = searchInput.value.trim().toLowerCase();
 
-if (els.clearAllBtn) {
-  els.clearAllBtn.addEventListener("click", deleteAll);
-}
+  if (!query) {
+    loadTasks();
+    return;
+  }
 
-// Safely ensure everything runs as soon as the DOM engine is ready
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", fetchTodos);
-} else {
-  fetchTodos();
+  try {
+    const response = await fetch(
+      `${API_URL}?search=${encodeURIComponent(query)}`
+    );
+    if (!response.ok) throw new Error("Search dispatch failed");
+
+    const resBody = await response.json();
+
+    if (resBody.data && Array.isArray(resBody.data)) {
+      tasks = resBody.data;
+    } else if (resBody.data && Array.isArray(resBody.data.todos)) {
+      tasks = resBody.data.todos;
+    } else if (resBody.todos && Array.isArray(resBody.todos)) {
+      tasks = resBody.todos;
+    } else {
+      tasks = Array.isArray(resBody) ? resBody : [];
+    }
+
+    renderTasks();
+  } catch (error) {
+    console.error("Backend search routing error:", error);
+    showToast("Failed to retrieve search results from server.", "error");
+  }
 }

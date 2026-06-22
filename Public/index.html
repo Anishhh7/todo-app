@@ -1,49 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todo App</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="toast-container" class="toast-container"></div>
 
-<div class="app">
-  <div class="title-wrap">
-    <h1>Todo App</h1>
-    <p id="today"></p>
-  </div>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>Todo App</h1>
+        <p id="current-date">Monday, Jun 22, 2026</p>
+      </header>
 
-  <div class="card">
-    <form id="todo-form">
-      <input type="text" id="todo-input" placeholder="Create your task..." autocomplete="off" maxlength="200" />
-      <button type="submit">Add</button>
-    </form>
+      <main class="todo-card">
+        <div class="input-section">
+          <input
+            type="text"
+            id="task-input"
+            placeholder="Create your task..."
+            autocomplete="off"
+          />
+          <button id="add-btn">Add</button>
+        </div>
 
-    <div class="toolbar">
-      <span class="count"><strong id="count-label">0</strong> tasks</span>
-      <button class="clear-all" id="clear-all-btn">Delete all</button>
+        <div id="search-container" class="search-section hidden">
+          <input type="text" id="search-input" placeholder="Search tasks..." />
+        </div>
+
+        <div class="controls-row">
+          <span id="task-count">0 tasks</span>
+          <button id="delete-all-btn" class="hidden">Delete all</button>
+        </div>
+
+        <ul id="task-list"></ul>
+      </main>
+
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Backend connected</span>
+      </div>
     </div>
 
-    <ul id="todo-list"></ul>
-    <div class="empty-state" id="empty-state" style="display:none;">
-      <span class="emoji">📝</span>
-      <strong>No tasks yet</strong>
-      <span>Create your first task above to get started</span>
-    </div>
-  </div>
-
-  <div class="status-bar">
-    <div>
-      <span class="dot" id="status-dot"></span>
-      <span id="status-text">Connecting...</span>
-    </div>
-    <div id="error-text" style="color: #ffcbd1;"></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="index.js"></script>
-</body>
+    <script src="index.js"></script>
+  </body>
 </html>
