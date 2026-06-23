@@ -3,7 +3,7 @@ const API_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1"
     ? "http://127.0.0.1:3000/api/v1/todo" // Your local Node.js server
-    : "https://todo-app-git-main-anishhh7s-projects.vercel.app/"; // Your live production backend URL // Local computer backend
+    : "todo-app-ashy-sigma-60.vercel.app"; // Your live production backend URL // Local computer backend
 
 // DOM Element Selectors
 const taskInput = document.getElementById("task-input");
