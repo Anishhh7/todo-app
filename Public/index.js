@@ -1,8 +1,8 @@
-const API_URL = "http://127.0.0.1:3000/api/v1/todo";
-window.location.hostname === "localhost" ||
-window.location.hostname === "127.0.0.1"
-  ? "http://127.0.0.1:3000/api/v1/todo" // Your local Node.js server
-  : "https://todo-app-2c12.onrender.com"; //production backend URL 
+const API_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://127.0.0.1:3000/api/v1/todo" 
+    : "https://todo-app-2c12.onrender.com/api/v1/todo";
 
 // DOM Element Selectors
 const taskInput = document.getElementById("task-input");
