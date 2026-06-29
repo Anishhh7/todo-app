@@ -5,7 +5,6 @@ const cors = require("cors");
 const todoRouter = require("./Routes/todoRoute");
 
 const app = express();
-app.use(cors());
 app.set("query parser", "extended");
 
 if (process.env.NODE_ENV === "development") {
@@ -24,5 +23,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1/todo", todoRouter);
+app.use(cors({
+  origin: 'https://todo-app-ashy-sigma-60.vercel.app' 
+}));
 
 module.exports = app;
