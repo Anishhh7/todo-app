@@ -7,7 +7,7 @@ exports.getAllTodos = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      //   results: todo.length,
+        results: todo.length,
       data: {
         todo
       }
@@ -67,6 +67,7 @@ exports.updateTodos = async (req, res) => {
 
     res.status(200).json({
       status: "success",
+      message: "Edited",
       data: {
         todo: todo
       }
@@ -85,6 +86,7 @@ exports.deleteTodos = async (req, res) => {
 
     res.status(204).json({
       status: "success",
+      message: "delete successfuly",
       data: null
     });
   } catch (err) {
@@ -123,10 +125,17 @@ exports.querySearch = async (req, res) => {
 
     const todos = await Todo.find(query);
 
-    res.status(200).json({
-      status: "success",
-      data: { todos }
-    });
+    if (todos == !query) {
+      res.status(200).json({
+        status: "success",
+        messsage: "task not found!!!"
+      });
+    } else {
+      res.status(200).json({
+        status: "success",
+        data: { todos }
+      });
+    }
   } catch (err) {
     res.status(400).json({
       status: "Fail",
