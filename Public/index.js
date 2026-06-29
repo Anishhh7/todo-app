@@ -1,9 +1,8 @@
-// Automatically detects if you are running locally or on Vercel production
-const API_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://127.0.0.1:3000/api/v1/todo" // Your local Node.js server
-    : "todo-app-ashy-sigma-60.vercel.app"; // Your live production backend URL // Local computer backend
+const API_URL = "http://127.0.0.1:3000/api/v1/todo";
+window.location.hostname === "localhost" ||
+window.location.hostname === "127.0.0.1"
+  ? "http://127.0.0.1:3000/api/v1/todo" // Your local Node.js server
+  : "https://todo-app-ashy-sigma-60.vercel.app/"; //production backend URL 
 
 // DOM Element Selectors
 const taskInput = document.getElementById("task-input");
@@ -13,6 +12,11 @@ const searchInput = document.getElementById("search-input");
 const taskCountElement = document.getElementById("task-count");
 const deleteAllBtn = document.getElementById("delete-all-btn");
 const taskList = document.getElementById("task-list");
+const dateElement = document.getElementById("current-date");
+
+const today = new Date();
+const formattedDate = today.toLocaleDateString();
+dateElement.textContent = formattedDate;
 
 // Internal State Sync Variable
 let tasks = [];
@@ -110,7 +114,7 @@ async function addTask() {
     });
 
     if (!response.ok) throw new Error("Creation failure");
-    const resBody = await response.json();
+    const resBody = await response.json(); // <-- Your variable is named resBody
 
     if (resBody.data && resBody.data.todo) {
       tasks.push(resBody.data.todo);
@@ -122,7 +126,10 @@ async function addTask() {
 
     taskInput.value = "";
     renderTasks();
-    showToast("Task has been successfully added!");
+
+    // FIX 1: Changed 'data' to 'resBody'
+    // FIX 2: Added a fallback "Task added!" string in case the backend doesn't return a .message property
+    showToast(resBody.message || "Task added successfully!", "success");
   } catch (error) {
     console.error("Error writing element:", error);
     showToast("Failed to add task.", "error");
