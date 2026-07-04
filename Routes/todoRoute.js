@@ -3,12 +3,15 @@ const todoController = require("./../controller/todoController");
 
 const router = express.Router();
 
+
+
 router
   .route("/")
-  .get(todoController.querySearch)
   .get(todoController.getAllTodos)
   .post(todoController.createTodos)
   .delete(todoController.deleteMany);
+
+
 
 router
   .route("/:id")
