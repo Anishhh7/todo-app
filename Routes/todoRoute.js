@@ -1,13 +1,13 @@
 const express = require("express");
 const todoController = require("./../controller/todoController");
-
+const authController = require('./../controller/authController');
 const router = express.Router();
 
 
 
 router
   .route("/")
-  .get(todoController.getAllTodos)
+  .get( authController.protect, todoController.getAllTodos)
   .post(todoController.createTodos)
   .delete(todoController.deleteMany);
 
@@ -15,7 +15,7 @@ router
 
 router
   .route("/:id")
-  .get(todoController.getTodos)
+  .get(authController.logIn, todoController.getTodos)
   .patch(todoController.updateTodos)
   .delete(todoController.deleteTodos);
 

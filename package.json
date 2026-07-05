@@ -11,10 +11,11 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-  "start": "nodemon server.js",
-  "start:prod":"NODE_ENV=production nodemon server.js"
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "crypto": "^1.0.1",
     "dotenv": "^17.4.2",
@@ -24,6 +25,7 @@
     "morgan": "^1.11.0",
     "nodemailer": "^9.0.3",
     "nodemon": "^3.1.14",
-    "regex": "^6.1.0"
+    "regex": "^6.1.0",
+    "validator": "^13.15.35"
   }
 }

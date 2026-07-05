@@ -1,10 +1,9 @@
-const Todo = require("./../modles/todoModel");
+const Todo = require("../models/todoModel");
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
 
 exports.getAllTodos = catchAsync(async (req, res, next) => {
   const todo = await Todo.find();
-  console.log(todo.length);
   res.status(200).json({
     status: "success",
     results: todo.length,
