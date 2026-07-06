@@ -26,7 +26,15 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signUp = catchAsync(async (req, res, next) => {
-  const newUser = await User.create(req.body);
+  const newUser = await User.create({
+    name:req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    passwordConfirm: req.body.passwordConfirm
+  });
+
+  newUser.password = undefined;
+
   createSendToken(newUser, 201, res);
 });
 
@@ -59,6 +67,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(
       new AppError("You are not logged in. please login and try again", 401)
     );
-    }
-    next();
+  }
+  next();
 });
