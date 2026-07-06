@@ -1,3 +1,4 @@
+const AppError = require('./utils/appError');
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
