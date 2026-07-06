@@ -20,8 +20,8 @@ const todoSchema = new mongoose.Schema({
       "personal",
       "shopping",
       "health",
-      " finance",
-      " education",
+      "finance",
+      "education",
       "other"
     ],
     default: "personal",
@@ -31,7 +31,7 @@ const todoSchema = new mongoose.Schema({
   description: {
     type: String,
     maxLength: 5000,
-    default: ""
+    default:""
   },
 
   priority: {
