@@ -27,7 +27,7 @@ const handleValidatorErrorDB = (err) => {
     const errors = Object.values(err.errors).map((el) => el.message)
     
     const message = `Invalid input data. ${error.join('. ')}`;
-    return new AppErrord(message, 400)
+    return new AppError(message, 400)
 }
 
 const handleJWTError = () => {
