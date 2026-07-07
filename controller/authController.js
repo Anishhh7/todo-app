@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const promisfy = require("util");
+const promisify = require("util");
 const jwt = require("jsonwebtoken");
 const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
@@ -68,5 +68,43 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError("You are not logged in. please login and try again", 401)
     );
   }
+
+const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
+    return next(new AppError('The token is no longer available', 401));
+  }
+
+  if (currentUser.checkPasswordChanged(decoded.iat)) {
+    return next(new AppError('user recently changed password.. Try Again', 401))
+  }
+
+  req.user = currentUser;
+
+
+// exports.restrictTo = (...roles) => {
+//   return (req, res, next) => {
+//     if (!roles.includes(req.user.role)) {
+//       return next(new AppError('Permission Denied', 403))
+//     }
+//     next();
+//   }
+// }
+
+// exports.forgotPassword = catchAsync(async (req, res, next) => {
+//   const user = await User.findOne({ email: req.body.email })
+  
+//   if (!user) {
+//     return next(new AppError('user not found with this email..', 404))
+//   };
+
+//   const resetToken = user.createPasswordResetToken();
+//   await user.save({ validateBeforeSave: false });
+
+//   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/user/resetPassword/${resetToken}`;
+  
+
+  // 
   next();
-});
+})
