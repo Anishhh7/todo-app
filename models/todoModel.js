@@ -9,8 +9,7 @@ const todoSchema = new mongoose.Schema({
 
   title: {
     type: String,
-    enum: ["task", "note"],
-    require: true
+  
   },
 
   category: {
@@ -25,7 +24,6 @@ const todoSchema = new mongoose.Schema({
       "other"
     ],
     default: "personal",
-    required: true
   },
 
   description: {
@@ -55,11 +53,11 @@ const todoSchema = new mongoose.Schema({
     default: null
   },
 
-  uodatedAt: {
+  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-const todo = mongoose.model("todo", todoSchema);
-module.exports = todo;
+const Todo = mongoose.model("Todo", todoSchema);
+module.exports = Todo;
