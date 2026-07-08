@@ -5,7 +5,7 @@ const handleCastError = (err) => {
   return new AppError(message, 400);
 };
 
-const handleDublicateFieldDB = (err) => {
+const handleDuplicateFieldDB = (err) => {
   let actualValue = 'Unknown';
   if (err.keyValue) {
     actualValue = Object.values(err.keyValue)[0];
@@ -15,18 +15,17 @@ const handleDublicateFieldDB = (err) => {
     actualValue = Object.values(err.errResponse.keyValue)[0];
   }
 
-  console.log('Dublicate value detected in terminal')
-  actualValue
+  console.log('Duplicate value detected in terminal')
 
 
-  const message = `Dublicate Field Value: '${actualValue}'. Please use another value !!!`;
+  const message = `Duplicate Field Value: '${actualValue}'. Please use another value !!!`;
   return new AppError(message, 400);
 }
 
 const handleValidatorErrorDB = (err) => {
     const errors = Object.values(err.errors).map((el) => el.message)
     
-    const message = `Invalid input data. ${error.join('. ')}`;
+    const message = `Invalid input data. ${errors.join('. ')}`;
     return new AppError(message, 400)
 }
 
@@ -34,7 +33,7 @@ const handleJWTError = () => {
     return new AppError('Invalid token..Please try again', 401);
 }
 const handleJWTExpiredError = () => {
-     return new AppError('your password token has been expired. please try again after login again', 401)
+     return new AppError('Your session has expired. Please log in again.', 401)
 }
  
 const sendErrorDev = (err, res) => {
@@ -71,7 +70,7 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') { 
     sendErrorDev(err, res)
   } else if (process.env.NODE_ENV === 'production') {
-    let error = Object.assign(err);
+    let error = {...err}
     error.message = err.message;
 
     const errorName = err.name || err.constructor.name;
