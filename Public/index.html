@@ -3,334 +3,112 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow - Smart Task Manager</title>
+    <title>TaskFlow - Todo App</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
-
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="modal auth-modal hidden">
-      <div class="modal-content auth-content">
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="auth-screen">
+      <div class="auth-box">
         <div class="auth-header">
-          <h2 id="auth-title">Sign In</h2>
-          <p id="auth-subtitle">Welcome back to TaskFlow</p>
+          <h1>TaskFlow</h1>
+          <p id="authTitle">Sign in to your account</p>
         </div>
 
-        <form id="auth-form" class="auth-form">
+        <div id="authError" class="error"></div>
+        <div id="authSuccess" class="success"></div>
+
+        <form id="authForm">
+          <div id="nameGroup" class="form-group" style="display: none">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="Your name" />
+          </div>
+
           <div class="form-group">
-            <label for="auth-email">Email</label>
+            <label for="email">Email</label>
             <input
               type="email"
-              id="auth-email"
-              name="email"
-              placeholder="you@example.com"
+              id="email"
+              placeholder="your@email.com"
               required
             />
           </div>
 
           <div class="form-group">
-            <label for="auth-password">Password</label>
+            <label for="password">Password</label>
             <input
               type="password"
-              id="auth-password"
-              name="password"
+              id="password"
               placeholder="••••••••"
               required
             />
           </div>
 
-          <button type="submit" id="auth-submit" class="btn-primary btn-full">
+          <div id="confirmGroup" class="form-group" style="display: none">
+            <label for="confirm">Confirm Password</label>
+            <input type="password" id="confirm" placeholder="••••••••" />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="authSubmit">
             Sign In
           </button>
         </form>
 
-        <div class="auth-footer">
-          <p>
-            Don't have an account?
-            <button type="button" id="toggle-auth-btn" class="link-btn">
-              Create one
-            </button>
-          </p>
+        <div class="auth-toggle">
+          <span id="toggleText">Don't have an account?</span>
+          <button type="button" id="toggleAuth">Sign Up</button>
         </div>
       </div>
     </div>
 
-    <!-- Task Modal -->
-    <div id="task-modal" class="modal task-modal hidden">
-      <div class="modal-content task-modal-content">
-        <div class="modal-header">
-          <h2 id="modal-title">New Task</h2>
-          <button class="btn-close" id="close-modal">&times;</button>
-        </div>
-
-        <form id="task-form" class="task-form">
-          <div class="form-group">
-            <label for="task-title">Task Title *</label>
-            <input
-              type="text"
-              id="task-title"
-              name="title"
-              placeholder="Enter task title..."
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="task-category">Category *</label>
-            <select id="task-category" name="category" required>
-              <option value="">Select category...</option>
-              <option value="work">Work</option>
-              <option value="personal">Personal</option>
-              <option value="shopping">Shopping</option>
-              <option value="health">Health</option>
-              <option value="finance">Finance</option>
-              <option value="education">Education</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="task-type">Type *</label>
-            <select id="task-type" name="type" required>
-              <option value="">Select type...</option>
-              <option value="task">Task (Checkbox)</option>
-              <option value="note">Note (Paragraph)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="task-description">
-              <span id="description-label">Description</span>
-            </label>
-            <textarea
-              id="task-description"
-              name="description"
-              placeholder="Add details..."
-              rows="4"
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="task-priority">Priority</label>
-            <select id="task-priority" name="priority">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="task-due-date">Due Date</label>
-            <input type="date" id="task-due-date" name="dueDate" />
-          </div>
-
-          <div class="form-actions">
-            <button type="button" id="cancel-task" class="btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" class="btn-primary">Create Task</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- View Modal -->
-    <div id="view-modal" class="modal view-modal hidden">
-      <div class="modal-content view-modal-content">
-        <div class="modal-header">
-          <h2 id="view-title">View Task</h2>
-          <button class="btn-close" id="close-view-modal">&times;</button>
-        </div>
-
-        <div id="view-content" class="view-content"></div>
-
-        <div class="form-actions">
-          <button type="button" id="edit-from-view" class="btn-secondary">
-            Edit
-          </button>
-          <button type="button" id="delete-from-view" class="btn-danger">
-            Delete
-          </button>
-          <button type="button" id="close-view-btn" class="btn-primary">
-            Close
-          </button>
+    <!-- APP SCREEN -->
+    <div id="appScreen" class="app-screen hidden">
+      <!-- Header -->
+      <div class="app-header">
+        <h1>TaskFlow</h1>
+        <div class="header-actions">
+          <button class="dark-toggle" id="darkToggle">🌙</button>
+          <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
       </div>
-    </div>
 
-    <!-- Main App -->
-    <div class="app-wrapper hidden" id="app-wrapper">
-      <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
-          <div class="header-top">
-            <div class="header-title">
-              <h1>TaskFlow</h1>
-              <p id="current-date" class="header-date"></p>
-            </div>
-            <div class="header-actions">
-              <span class="user-email" id="user-email"></span>
-              <button id="logout-btn" class="btn-icon" title="Logout">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                  <polyline points="16 17 21 12 16 7"></polyline>
-                  <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-              </button>
-            </div>
+      <!-- Main Content -->
+      <div class="app-main">
+        <!-- Quick Add -->
+        <div class="quick-add">
+          <button class="quick-add-btn active" data-type="task">✓ Task</button>
+          <button class="quick-add-btn" data-type="note">📝 Note</button>
+        </div>
+
+        <!-- Input -->
+        <div class="input-section">
+          <input
+            type="text"
+            id="quickInput"
+            class="quick-input"
+            placeholder="Add a task..."
+            autocomplete="off"
+          />
+          <button class="add-quick-btn" id="addQuickBtn">Add</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="task">Tasks</button>
+          <button class="filter-btn" data-filter="note">Notes</button>
+          <button class="filter-btn" data-filter="pending">Pending</button>
+          <button class="filter-btn" data-filter="completed">Done</button>
+        </div>
+
+        <!-- Tasks -->
+        <div class="tasks-container" id="tasksList">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No tasks yet</h3>
+            <p>Add your first task to get started</p>
           </div>
-        </header>
-
-        <main class="main-content">
-          <!-- Sidebar -->
-          <aside class="sidebar">
-            <button id="new-task-btn" class="btn-primary btn-full">
-              + New Task
-            </button>
-
-            <div class="sidebar-section">
-              <h3>Categories</h3>
-              <div id="category-filter" class="category-list">
-                <button
-                  class="category-btn active"
-                  data-category="all"
-                  title="Show all tasks"
-                >
-                  <span class="category-dot" style="background: #6366f1"></span>
-                  All
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="work"
-                  title="Work tasks"
-                >
-                  <span class="category-dot" style="background: #3b82f6"></span>
-                  Work
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="personal"
-                  title="Personal tasks"
-                >
-                  <span class="category-dot" style="background: #8b5cf6"></span>
-                  Personal
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="shopping"
-                  title="Shopping list"
-                >
-                  <span class="category-dot" style="background: #ec4899"></span>
-                  Shopping
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="health"
-                  title="Health tasks"
-                >
-                  <span class="category-dot" style="background: #10b981"></span>
-                  Health
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="finance"
-                  title="Finance tasks"
-                >
-                  <span class="category-dot" style="background: #f59e0b"></span>
-                  Finance
-                </button>
-                <button
-                  class="category-btn"
-                  data-category="education"
-                  title="Education"
-                >
-                  <span class="category-dot" style="background: #06b6d4"></span>
-                  Education
-                </button>
-              </div>
-            </div>
-
-            <div class="sidebar-section">
-              <h3>Filter</h3>
-              <div class="filter-list">
-                <button
-                  class="filter-btn active"
-                  data-filter="all"
-                  title="All tasks"
-                >
-                  All Tasks
-                </button>
-                <button
-                  class="filter-btn"
-                  data-filter="active"
-                  title="Incomplete tasks"
-                >
-                  Active
-                </button>
-                <button
-                  class="filter-btn"
-                  data-filter="completed"
-                  title="Completed tasks"
-                >
-                  Completed
-                </button>
-              </div>
-            </div>
-
-            <div class="sidebar-section">
-              <h3>Stats</h3>
-              <div class="stats">
-                <div class="stat-item">
-                  <span class="stat-label">Total Tasks</span>
-                  <span class="stat-value" id="stat-total">0</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Completed</span>
-                  <span class="stat-value" id="stat-completed">0</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Pending</span>
-                  <span class="stat-value" id="stat-pending">0</span>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          <!-- Main Area -->
-          <section class="task-section">
-            <!-- Search -->
-            <div class="search-bar">
-              <input
-                type="text"
-                id="search-input"
-                placeholder="Search tasks by title or category..."
-                class="search-input"
-              />
-            </div>
-
-            <!-- Empty State -->
-            <div id="empty-state" class="empty-state hidden">
-              <div class="empty-icon">📝</div>
-              <h3>No tasks yet</h3>
-              <p>Create your first task to get started</p>
-              <button id="empty-new-task" class="btn-primary">
-                Create Task
-              </button>
-            </div>
-
-            <!-- Task List -->
-            <div id="task-list" class="task-list"></div>
-          </section>
-        </main>
+        </div>
       </div>
     </div>
 

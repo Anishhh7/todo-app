@@ -6,12 +6,14 @@ const authController= require('./../controller/authController')
 const router = express.Router();
 
 router.post('/signup', authController.signUp);
-router.post('/login', authController.logIn);
+router.post('/signin', authController.logIn);
+
+
 
 
 router
     .route("/")
-    .get(userController.getAllUsers)
+    .get(authController.protect, userController.getAllUsers)
 
 
 module.exports = router;

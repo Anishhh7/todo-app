@@ -1,9 +1,10 @@
 const Todo = require("../models/todoModel");
+const User = require("../models/userModel");
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
 
 exports.getAllTodos = catchAsync(async (req, res, next) => {
-  const todo = await Todo.find();
+  const todo = await Todo.find({user: req.user.id});
   res.status(200).json({
     status: "success",
     results: todo.length,
@@ -13,7 +14,7 @@ exports.getAllTodos = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getTodos = catchAsync(async (req, res, next) => {
+exports.getTodo = catchAsync(async (req, res, next) => {
   const todo = await Todo.findById(req.params.id);
 
   res.status(200).json({
@@ -25,14 +26,18 @@ exports.getTodos = catchAsync(async (req, res, next) => {
 });
 
 exports.createTodos = catchAsync(async (req, res, next) => {
-  const newTodo = await Todo.create(req.body);
+  const { title } = req.body;
+  const newTodo = await Todo.create({
+    title,
+    user: req.user._id
+  });
 
   res.status(201).json({
     status: "success",
     data: {
       todo: newTodo
     },
-    message: "task added"
+    message: "todo added"
   });
 });
 
@@ -62,7 +67,7 @@ exports.deleteTodos = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteMany = catchAsync(async (req, res, next) => {
-  await Todo.deleteMany({});
+  await Todo.deleteMany({user: req.user.id});
 
   res.status(204).json({
     status: "success",
@@ -70,5 +75,3 @@ exports.deleteMany = catchAsync(async (req, res, next) => {
     data: null
   });
 });
-
-

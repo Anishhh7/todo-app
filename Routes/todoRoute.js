@@ -8,15 +8,15 @@ const router = express.Router();
 router
   .route("/")
   .get( authController.protect, todoController.getAllTodos)
-  .post(todoController.createTodos)
-  .delete(todoController.deleteMany);
+  .post(authController.protect, todoController.createTodos)
+  .delete(authController.protect, todoController.deleteMany);
 
 
 
 router
   .route("/:id")
-  .get(authController.logIn, todoController.getTodos)
-  .patch(todoController.updateTodos)
-  .delete(todoController.deleteTodos);
+  .get(authController.protect, todoController.getTodo)
+  .patch(authController.protect, todoController.updateTodos)
+  .delete(authController.protect, todoController.deleteTodos);
 
 module.exports = router;

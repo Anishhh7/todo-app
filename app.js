@@ -3,7 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const todoRouter = require("./Routes/todoRoute");
-const userRouter = require('./Routes/userRoutes');
+const usersRouter = require('./Routes/userRoutes');
 const globalErrorHandler = require('./controller/errorController');
 
 const app = express();
@@ -14,8 +14,15 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(cors({
-  origin: 'https://todo-app-ashy-sigma-60.vercel.app' 
+    origin: 'http://127.0.0.1:5500',
+    credentials: true
 }));
+
+
+
+// app.use(cors({
+//   origin: 'https://todo-app-ashy-sigma-60.vercel.app' 
+// }));
 
 app.use(express.json());
 
@@ -30,12 +37,11 @@ app.use((req, res, next) => {
 
 
 app.use("/api/v1/todo", todoRouter);
-app.use("/api/v1/auth", userRouter);
-
+app.use("/api/v1/auth", usersRouter);
 
 
 app.all('/{*path}', (req, res, next) => {
-  next(new AppError(`can't find ${req.orginalUrl} on this server`, 404))
+  next(new AppError(`can't find ${req.originalUrl} on this server`, 404))
 })
 
 app.use(globalErrorHandler);
