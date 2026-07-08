@@ -9,13 +9,14 @@ const todoSchema = new mongoose.Schema({
 
   title: {
     type: String,
+    required:true
   
   },
 
   category: {
     type: String,
     enum: [
-      " work",
+      "work",
       "personal",
       "shopping",
       "health",
@@ -43,20 +44,17 @@ const todoSchema = new mongoose.Schema({
     default: false
   },
 
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-
   dueDate: {
-    type: Date,
-    default: null
+    type: Date
   },
 
   updatedAt: {
     type: Date,
     default: Date.now
   }
+},
+{
+  timestamps:true,
 });
 
 const Todo = mongoose.model("Todo", todoSchema);

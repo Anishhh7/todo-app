@@ -9,11 +9,11 @@ router.post('/signup', authController.signUp);
 router.post('/signin', authController.logIn);
 
 
-
+// router.route (authController.protect)
 
 router
     .route("/")
-    .get(authController.protect, userController.getAllUsers)
+    .get(userController.getAllUsers)
 
 
 module.exports = router;

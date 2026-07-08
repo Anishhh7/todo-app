@@ -69,7 +69,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
@@ -83,28 +83,14 @@ const decoded = jwt.verify(token, process.env.JWT_SECRET);
   req.user = currentUser;
 
 
-// exports.restrictTo = (...roles) => {
-//   return (req, res, next) => {
-//     if (!roles.includes(req.user.role)) {
-//       return next(new AppError('Permission Denied', 403))
-//     }
-//     next();
-//   }
-// }
+  exports.restrictTo = (...roles) => {
+    return (req, res, next) => {
+      if (!roles.includes(req.user.role)) {
+        return next(new AppError('Permission Denied', 403))
+      }
+      next();
+    }
+  }
 
-// exports.forgotPassword = catchAsync(async (req, res, next) => {
-//   const user = await User.findOne({ email: req.body.email })
-  
-//   if (!user) {
-//     return next(new AppError('user not found with this email..', 404))
-//   };
-
-//   const resetToken = user.createPasswordResetToken();
-//   await user.save({ validateBeforeSave: false });
-
-//   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/user/resetPassword/${resetToken}`;
-  
-
-  // 
-  next();
+next()
 })

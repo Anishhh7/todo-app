@@ -14,15 +14,12 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(cors({
-    origin: 'http://127.0.0.1:5500',
-    credentials: true
+  origin: [
+    'http://127.0.0.1:3000',
+    'https://todo-app-ashy-sigma-60.vercel.app'
+  ],
+  credentials: true
 }));
-
-
-
-// app.use(cors({
-//   origin: 'https://todo-app-ashy-sigma-60.vercel.app' 
-// }));
 
 app.use(express.json());
 
