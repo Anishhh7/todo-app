@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — Flowdesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <section class="auth-showcase">
+      <div class="auth-showcase__brand">
+        <span class="auth-showcase__brand-mark"></span>
+        Flowdesk
+      </div>
+      <div class="auth-showcase__body">
+        <div class="auth-showcase__eyebrow">Task control room</div>
+        <h1 class="auth-showcase__title">Set up your desk in under a minute.</h1>
+        <p class="auth-showcase__subtitle">
+          Create an account to start organizing tasks by category, priority,
+          and due date — all in one dashboard.
+        </p>
+      </div>
+      <div class="auth-showcase__ticker">
+        <div class="auth-showcase__ticker-row">
+          <span class="auth-showcase__ticker-dot" style="background: var(--accent)"></span>
+          Categories: Personal, Work, Finance, and more
+        </div>
+        <div class="auth-showcase__ticker-row">
+          <span class="auth-showcase__ticker-dot" style="background: var(--warning)"></span>
+          Priorities: Low, Medium, High
+        </div>
+        <div class="auth-showcase__ticker-row">
+          <span class="auth-showcase__ticker-dot" style="background: var(--success)"></span>
+          Filter by search, date, and status
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <h2 class="auth-card__title">Create your account</h2>
+        <p class="auth-card__subtitle">It only takes a moment.</p>
+
+        <div id="auth-error" class="auth-error auth-error--hidden"></div>
+
+        <form id="signup-form" novalidate>
+          <div class="field">
+            <label for="signup-name">Name</label>
+            <input type="text" id="signup-name" autocomplete="name" placeholder="Jordan Lee" required />
+          </div>
+          <div class="field">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" autocomplete="new-password" placeholder="••••••••" required />
+          </div>
+          <div class="field">
+            <label for="signup-confirm-password">Confirm password</label>
+            <input type="password" id="signup-confirm-password" autocomplete="new-password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn--primary btn--block">Create account</button>
+        </form>
+
+        <div class="auth-card__footer">
+          Already have an account? <a href="login.html">Login</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="index.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

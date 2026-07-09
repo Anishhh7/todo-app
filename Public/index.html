@@ -1,117 +1,220 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow - Todo App</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <!-- AUTH SCREEN -->
-    <div id="authScreen" class="auth-screen">
-      <div class="auth-box">
-        <div class="auth-header">
-          <h1>TaskFlow</h1>
-          <p id="authTitle">Sign in to your account</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Flowdesk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <span class="sidebar__brand-mark"></span>
+        Flowdesk
+      </div>
+
+      <nav class="nav-group">
+        <div class="nav-group__label">Overview</div>
+        <a href="#" class="nav-link nav-link--active" data-view="all"><span class="nav-link__icon">▦</span> Dashboard</a>
+        <a href="#" class="nav-link" data-view="all"><span class="nav-link__icon">☰</span> All tasks</a>
+        <a href="#" class="nav-link" data-view="today"><span class="nav-link__icon">◷</span> Today's tasks</a>
+      </nav>
+
+      <nav class="nav-group">
+        <div class="nav-group__label">Status</div>
+        <a href="#" class="nav-link" data-view="completed"><span class="nav-link__icon">✓</span> Completed</a>
+        <a href="#" class="nav-link" data-view="pending"><span class="nav-link__icon">○</span> Pending</a>
+        <a href="#" class="nav-link" data-view="high"><span class="nav-link__icon">▲</span> High priority</a>
+      </nav>
+
+      <nav class="nav-group">
+        <div class="nav-group__label">Workspace</div>
+        <a href="#" class="nav-link"><span class="nav-link__icon">▤</span> Categories</a>
+        <a href="#" class="nav-link"><span class="nav-link__icon">⚙</span> Settings</a>
+      </nav>
+
+      <div class="sidebar__spacer"></div>
+
+      <button id="logout-btn" class="btn sidebar__logout">
+        <span class="nav-link__icon">⎋</span> Logout
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="topbar__greeting">Hi, <span id="greeting-name">there</span> 👋</div>
+          <div class="topbar__date" id="topbar-date"></div>
         </div>
-
-        <div id="authError" class="error"></div>
-        <div id="authSuccess" class="success"></div>
-
-        <form id="authForm">
-          <div id="nameGroup" class="form-group" style="display: none">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" placeholder="Your name" />
+        <div class="topbar__right">
+          <div class="topbar__search">
+            <span class="topbar__search-icon">⌕</span>
+            <input type="text" id="topbar-search" placeholder="Search tasks..." />
           </div>
+          <button class="topbar__icon-btn" title="Notifications">🔔</button>
+          <div class="topbar__avatar" id="topbar-avatar">FD</div>
+        </div>
+      </header>
 
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="your@email.com"
-              required
-            />
-          </div>
+      <!-- Stats -->
+      <section class="stats-grid">
+        <div class="stat-card stat-card--total">
+          <div class="stat-card__label">Total tasks</div>
+          <div class="stat-card__value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card stat-card--completed">
+          <div class="stat-card__label">Completed</div>
+          <div class="stat-card__value" id="stat-completed">—</div>
+        </div>
+        <div class="stat-card stat-card--pending">
+          <div class="stat-card__label">Pending</div>
+          <div class="stat-card__value" id="stat-pending">—</div>
+        </div>
+        <div class="stat-card stat-card--overdue">
+          <div class="stat-card__label">Overdue</div>
+          <div class="stat-card__value" id="stat-overdue">—</div>
+        </div>
+      </section>
 
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+      <!-- Filter bar -->
+      <section class="filter-bar">
+        <select id="filter-category">
+          <option value="">All categories</option>
+          <option value="Personal">Personal</option>
+          <option value="Education">Education</option>
+          <option value="Work">Work</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Fitness">Fitness</option>
+          <option value="Health">Health</option>
+          <option value="Finance">Finance</option>
+          <option value="Other">Other</option>
+        </select>
 
-          <div id="confirmGroup" class="form-group" style="display: none">
-            <label for="confirm">Confirm Password</label>
-            <input type="password" id="confirm" placeholder="••••••••" />
-          </div>
+        <select id="filter-priority">
+          <option value="">All priorities</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
 
-          <button type="submit" class="btn btn-primary" id="authSubmit">
-            Sign In
-          </button>
-        </form>
+        <select id="filter-completed">
+          <option value="">Any status</option>
+          <option value="true">Completed</option>
+          <option value="false">Pending</option>
+        </select>
 
-        <div class="auth-toggle">
-          <span id="toggleText">Don't have an account?</span>
-          <button type="button" id="toggleAuth">Sign Up</button>
+        <input type="date" id="filter-date-from" title="Due from" />
+        <input type="date" id="filter-date-to" title="Due to" />
+
+        <div class="filter-bar__spacer"></div>
+
+        <select id="filter-sort">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="priority">Priority</option>
+          <option value="dueDate">Due date</option>
+          <option value="alphabetical">Alphabetical</option>
+        </select>
+
+        <button id="filter-clear" class="btn btn--ghost">Clear filters</button>
+        <button id="new-task-btn" class="btn btn--primary">+ New task</button>
+      </section>
+
+      <!-- Task list -->
+      <div id="todo-list-wrapper">
+        <div id="todo-list" class="todo-list"></div>
+
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-state__icon">🗂️</div>
+          <h3 class="empty-state__title">No tasks match these filters</h3>
+          <p class="empty-state__subtitle">Try clearing filters, or add a new task to get started.</p>
+          <button id="empty-state-new-task" class="btn btn--primary">+ New task</button>
         </div>
       </div>
+
+      <div id="pagination" class="pagination"></div>
+    </main>
+  </div>
+
+  <!-- Reusable Create/Edit Todo Modal -->
+  <div id="todo-modal" class="modal">
+    <div class="modal__panel">
+      <div class="modal__header">
+        <h3 class="modal__title">New task</h3>
+        <button type="button" class="modal__close" id="modal-close-x">✕</button>
+      </div>
+
+      <form id="todo-form">
+        <div class="modal__body">
+          <input type="hidden" id="todo-id" />
+
+          <div class="field">
+            <label for="field-title">Title</label>
+            <input type="text" id="field-title" placeholder="e.g. Finish onboarding flow" required />
+          </div>
+
+          <div class="field">
+            <label for="field-description">Description</label>
+            <textarea id="field-description" placeholder="Add more detail (optional)"></textarea>
+          </div>
+
+          <div class="modal__row">
+            <div class="field">
+              <label for="field-category">Category</label>
+              <select id="field-category">
+                <option value="Personal">Personal</option>
+                <option value="Education">Education</option>
+                <option value="Work">Work</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Health">Health</option>
+                <option value="Finance">Finance</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="field-priority">Priority</label>
+              <select id="field-priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="field-dueDate">Due date</label>
+            <input type="date" id="field-dueDate" />
+          </div>
+
+          <div class="modal__checkbox-field">
+            <input type="checkbox" id="field-completed" />
+            <label for="field-completed" style="margin:0;">Mark as completed</label>
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" id="modal-cancel" class="btn btn--ghost">Cancel</button>
+          <button type="submit" id="modal-save" class="btn btn--primary">Save task</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- APP SCREEN -->
-    <div id="appScreen" class="app-screen hidden">
-      <!-- Header -->
-      <div class="app-header">
-        <h1>TaskFlow</h1>
-        <div class="header-actions">
-          <button class="dark-toggle" id="darkToggle">🌙</button>
-          <button class="logout-btn" id="logoutBtn">Logout</button>
-        </div>
-      </div>
-
-      <!-- Main Content -->
-      <div class="app-main">
-        <!-- Quick Add -->
-        <div class="quick-add">
-          <button class="quick-add-btn active" data-type="task">✓ Task</button>
-          <button class="quick-add-btn" data-type="note">📝 Note</button>
-        </div>
-
-        <!-- Input -->
-        <div class="input-section">
-          <input
-            type="text"
-            id="quickInput"
-            class="quick-input"
-            placeholder="Add a task..."
-            autocomplete="off"
-          />
-          <button class="add-quick-btn" id="addQuickBtn">Add</button>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="task">Tasks</button>
-          <button class="filter-btn" data-filter="note">Notes</button>
-          <button class="filter-btn" data-filter="pending">Pending</button>
-          <button class="filter-btn" data-filter="completed">Done</button>
-        </div>
-
-        <!-- Tasks -->
-        <div class="tasks-container" id="tasksList">
-          <div class="empty-state">
-            <div class="empty-icon">📋</div>
-            <h3>No tasks yet</h3>
-            <p>Add your first task to get started</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="index.js"></script>
-  </body>
+  <script src="api.js"></script>
+  <script src="index.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    document.getElementById('topbar-date').textContent = new Date().toLocaleDateString(undefined, {
+      weekday: 'long', month: 'long', day: 'numeric'
+    });
+    document.getElementById('modal-close-x').addEventListener('click', closeModal);
+  </script>
+</body>
 </html>
