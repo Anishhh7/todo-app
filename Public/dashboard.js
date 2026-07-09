@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindFilterBar();
   bindTodoForm();
   bindLogout();
+  bindSettings();
   loadTodos();
 });
 
@@ -50,6 +51,62 @@ function hydrateGreeting() {
 function bindLogout() {
   const btn = document.getElementById('logout-btn');
   if (btn) btn.addEventListener('click', logout);
+}
+
+/* ---------------- Settings (username) ---------------- */
+
+function bindSettings() {
+  const link = document.getElementById('settings-link');
+  const modal = document.getElementById('settings-modal');
+  const form = document.getElementById('settings-form');
+  const closeX = document.getElementById('settings-close-x');
+  const cancelBtn = document.getElementById('settings-cancel');
+  if (!link || !modal || !form) return;
+
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('settings-name').value = localStorage.getItem('userName') || '';
+    modal.classList.add('modal--open');
+    document.body.classList.add('modal-open');
+  });
+
+  const close = () => {
+    modal.classList.remove('modal--open');
+    document.body.classList.remove('modal-open');
+  };
+
+  closeX.addEventListener('click', close);
+  cancelBtn.addEventListener('click', close);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) close();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById('settings-save');
+    const name = document.getElementById('settings-name').value.trim();
+
+    if (!name) {
+      showToast('Enter a username.', 'error');
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    try {
+      await api.updateMe({ name });
+      localStorage.setItem('userName', name);
+      hydrateGreeting();
+      showToast('Username updated.', 'success');
+      close();
+    } catch (err) {
+      showToast(err.message || 'Could not update username.', 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save changes';
+    }
+  });
 }
 
 function bindSidebar() {
@@ -194,20 +251,29 @@ async function loadTodos() {
 
   try {
     const data = await api.getTodos(params);
-    const todos = data.data || data.todos || data.results || [];
-    const total = data.total ?? data.count ?? todos.length;
 
-    state.todos = todos;
-    state.totalCount = total;
+    state.todos = data.data;
+    state.totalCount = data.total;
+    state.totalPages = data.totalPages;
 
-    renderTodos(todos);
-    renderPagination(total);
-    renderStats(data.stats);
+    renderTodos(data.data);
+    renderPagination(data.totalPages);
   } catch (err) {
     showToast(err.message || 'Could not load tasks.', 'error');
     renderTodos([]);
   } finally {
     setLoading(document.getElementById('todo-list-wrapper'), false);
+  }
+
+  loadStats();
+}
+
+async function loadStats() {
+  try {
+    const { data } = await api.getStats();
+    renderStats(data);
+  } catch (err) {
+    showToast(err.message || 'Could not load stats.', 'error');
   }
 }
 
@@ -288,31 +354,14 @@ function capitalize(str) {
 }
 
 function renderStats(stats) {
-  const totalEl = document.getElementById('stat-total');
-  const completedEl = document.getElementById('stat-completed');
-  const pendingEl = document.getElementById('stat-pending');
-  const overdueEl = document.getElementById('stat-overdue');
-
-  if (stats) {
-    totalEl.textContent = stats.total ?? '—';
-    completedEl.textContent = stats.completed ?? '—';
-    pendingEl.textContent = stats.pending ?? '—';
-    overdueEl.textContent = stats.overdue ?? '—';
-    return;
-  }
-
-  // Fall back to counting the current page if the backend doesn't send stats.
-  const todos = state.todos;
-  const now = new Date();
-  totalEl.textContent = state.totalCount ?? todos.length;
-  completedEl.textContent = todos.filter((t) => t.completed).length;
-  pendingEl.textContent = todos.filter((t) => !t.completed).length;
-  overdueEl.textContent = todos.filter((t) => !t.completed && t.dueDate && new Date(t.dueDate) < now).length;
+  document.getElementById('stat-total').textContent = stats.total;
+  document.getElementById('stat-completed').textContent = stats.completed;
+  document.getElementById('stat-pending').textContent = stats.pending;
+  document.getElementById('stat-overdue').textContent = stats.overdue;
 }
 
-function renderPagination(total) {
+function renderPagination(totalPages) {
   const container = document.getElementById('pagination');
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   container.innerHTML = '';
 
   const prevBtn = document.createElement('button');

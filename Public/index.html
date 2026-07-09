@@ -34,7 +34,7 @@
       <nav class="nav-group">
         <div class="nav-group__label">Workspace</div>
         <a href="#" class="nav-link"><span class="nav-link__icon">▤</span> Categories</a>
-        <a href="#" class="nav-link"><span class="nav-link__icon">⚙</span> Settings</a>
+        <a href="#" class="nav-link" id="settings-link"><span class="nav-link__icon">⚙</span> Settings</a>
       </nav>
 
       <div class="sidebar__spacer"></div>
@@ -202,6 +202,30 @@
         <div class="modal__footer">
           <button type="button" id="modal-cancel" class="btn btn--ghost">Cancel</button>
           <button type="submit" id="modal-save" class="btn btn--primary">Save task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal">
+    <div class="modal__panel">
+      <div class="modal__header">
+        <h3 class="modal__title">Settings</h3>
+        <button type="button" class="modal__close" id="settings-close-x">✕</button>
+      </div>
+
+      <form id="settings-form">
+        <div class="modal__body">
+          <div class="field">
+            <label for="settings-name">Username</label>
+            <input type="text" id="settings-name" placeholder="Your name" required />
+          </div>
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" id="settings-cancel" class="btn btn--ghost">Cancel</button>
+          <button type="submit" id="settings-save" class="btn btn--primary">Save changes</button>
         </div>
       </form>
     </div>

@@ -1,10 +1,10 @@
-const AppError = require('./utils/appError');
+const AppError = require("./utils/appError");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const todoRouter = require("./Routes/todoRoute");
-const usersRouter = require('./Routes/userRoutes');
-const globalErrorHandler = require('./controller/errorController');
+const usersRouter = require("./Routes/userRoutes");
+const globalErrorHandler = require("./controller/errorController");
 
 const app = express();
 app.set("query parser", "extended");
@@ -13,13 +13,16 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-app.use(cors({
-  origin: [
-    'http://127.0.0.1:3000',
-    'https://todo-app-ashy-sigma-60.vercel.app'
-  ],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://127.0.0.1:5500",
+      "http://localhost:5500",
+      "https://todo-app-ashy-sigma-60.vercel.app"
+    ],
+    credentials: true
+  })
+);
 
 app.use(express.json());
 
@@ -32,14 +35,13 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use("/api/v1/todo", todoRouter);
 app.use("/api/v1/auth", usersRouter);
+app.use('/api/v1/users', usersRouter)
 
-
-app.all('/{*path}', (req, res, next) => {
-  next(new AppError(`can't find ${req.originalUrl} on this server`, 404))
-})
+app.all("/{*path}", (req, res, next) => {
+  next(new AppError(`can't find ${req.originalUrl} on this server`, 404));
+});
 
 app.use(globalErrorHandler);
 

@@ -11,7 +11,7 @@ router
   .post(authController.protect, todoController.createTodos)
   .delete(authController.protect, todoController.deleteMany);
 
-
+router.route('/stats').get(authController.protect, todoController.getStats)
 
 router
   .route("/:id")

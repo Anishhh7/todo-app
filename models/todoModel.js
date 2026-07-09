@@ -16,15 +16,16 @@ const todoSchema = new mongoose.Schema({
   category: {
     type: String,
     enum: [
-      "work",
-      "personal",
-      "shopping",
-      "health",
-      "finance",
-      "education",
-      "other"
+      "Work",
+      "Personal",
+      "Shopping",
+      "Health",
+      "Finance",
+      "Education",
+      "Fitness",
+      "Other"
     ],
-    default: "personal",
+    default: "Personal",
   },
 
   description: {

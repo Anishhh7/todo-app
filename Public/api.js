@@ -2,7 +2,10 @@
 // Centralized fetch wrapper for the Todo backend.
 // Handles base URL, auth headers, JSON parsing, and error normalization.
 
-const API_BASE_URL = 'http://localhost:3000/api/v1';
+const API_BASE_URL =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api/v1'
+    : 'https://todo-app-2c12.onrender.com/api/v1';
 
 /**
  * Builds headers for a request, attaching the JWT if present.
@@ -93,6 +96,12 @@ const api = {
   // Todos
   getTodos(params) {
     return request('/todo', { method: 'GET', params });
+  },
+  getStats() {
+    return request('/todo/stats', { method: 'GET' });
+  },
+  updateMe(payload) {
+    return request('/users/me', { method: 'PATCH', body: payload });
   },
   getTodo(id) {
     return request(`/todo/${id}`, { method: 'GET' });
