@@ -29,15 +29,10 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/user/signup",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/user/signup",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -86,15 +81,10 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/auth/signin",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/auth/signin",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -126,15 +116,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/todo/6a4cb7bf69c878",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/todo/6a4cb7bf69c878",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -183,15 +168,10 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/todo",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/todo",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -226,15 +206,10 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/todo/",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/todo/",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -268,15 +243,10 @@
               "raw": "{\r\n    \"title\":\"I need to complete this series.\"\r\n}"
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/todo?createdAt",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/todo?createdAt",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
@@ -320,15 +290,10 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:3000/api/v1/todo",
-              "protocol": "http",
+              "raw": "{{URL}}/api/v1/todo",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "{{URL}}"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "v1",
